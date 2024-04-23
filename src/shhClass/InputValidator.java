@@ -3,7 +3,7 @@ package shhClass;
 import java.sql.*;
 
 public class InputValidator {
-    static Connection conn = DatabaseManager.getConnection();
+    static Connection conn = DatabaseManager.getConnectDB();
     public static boolean validateMa(int ma){
         return ma > 0;
     }
@@ -22,33 +22,33 @@ public class InputValidator {
 
     public static boolean kiemTraMaDKTonTai(int MaDK) throws SQLException {
         String sql = "SELECT 1 FROM DANGKYTRE WHERE MaDK = ?";
-        PreparedStatement preparedStatement = conn.prepareStatement(sql);
-        preparedStatement.setInt(1, MaDK);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        return resultSet.next();
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, MaDK);
+        ResultSet rs = pst.executeQuery();
+        return rs.next();
     }
 
     public static boolean kiemTraMaPHTonTai(int MaPH) throws SQLException {
         String sql = "SELECT 1 FROM PHUHUYNH WHERE MaPH = ?";
-        PreparedStatement preparedStatement = conn.prepareStatement(sql);
-        preparedStatement.setInt(1, MaPH);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        return resultSet.next();
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, MaPH);
+        ResultSet rs = pst.executeQuery();
+        return rs.next();
     }
 
     public static boolean kiemTraMaTreTonTai(int MaTre) throws SQLException {
         String sql = "SELECT 1 FROM TREEM WHERE MaTre = ?";
-        PreparedStatement preparedStatement = conn.prepareStatement(sql);
-        preparedStatement.setInt(1, MaTre);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        return resultSet.next();
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, MaTre);
+        ResultSet rs = pst.executeQuery();
+        return rs.next();
     }
 
     public static boolean kiemTraMaLHTonTai(int MaLH) throws SQLException {
         String sql = "SELECT 1 FROM LOPHOC WHERE MaLH = ?";
-        PreparedStatement preparedStatement = conn.prepareStatement(sql);
-        preparedStatement.setInt(1, MaLH);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        return resultSet.next();
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, MaLH);
+        ResultSet rs = pst.executeQuery();
+        return rs.next();
     }
 }

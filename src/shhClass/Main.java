@@ -8,10 +8,11 @@ import static shhClass.InputValidator.*;
 public class Main {
     static ArrayList<DangKyTre> dangKyTres = new ArrayList<>();
     static Scanner sc = new Scanner(System.in);
-    static Connection conn = DatabaseManager.getConnection();
+    static Connection conn = DatabaseManager.getConnectDB();
+
 
     public static void main(String[] args) {
-        DatabaseManager.getConnection();
+        DatabaseManager.getConnectDB();
         boolean exit = false;
         while (!exit){
             try {
@@ -54,7 +55,7 @@ public class Main {
                 System.out.println("Đã xảy ra lỗi: " + e.getMessage());
             }
         }
-        DatabaseManager.closeConnection();
+        DatabaseManager.closeConnectDB();
     }
     public static void themThongTinDangKy(){
         System.out.println("\n==========Thêm thông tin đăng ký==========");
@@ -124,13 +125,13 @@ public class Main {
     public static void themDangKyHocSinhVaoDatabase(DangKyTre dangKyTre){
         try {
             String sql = "INSERT INTO DANGKYTRE(MaPH,MaTre,MaLH,NgayDangKy,TrangThai) VALUES (?,?,?,?,?)";
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, dangKyTre.getMaLH());
-            preparedStatement.setInt(2,dangKyTre.getMaTre());
-            preparedStatement.setInt(3,dangKyTre.getMaLH());
-            preparedStatement.setDate(4,dangKyTre.getNgayDangKy());
-            preparedStatement.setString(5,dangKyTre.getTrangThai());
-            preparedStatement.executeUpdate();
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, dangKyTre.getMaLH());
+            pst.setInt(2,dangKyTre.getMaTre());
+            pst.setInt(3,dangKyTre.getMaLH());
+            pst.setDate(4,dangKyTre.getNgayDangKy());
+            pst.setString(5,dangKyTre.getTrangThai());
+            pst.executeUpdate();
             System.out.println("đã thêm thông tin đăng ký thành công");
 
         } catch (SQLException e) {
@@ -204,14 +205,14 @@ public class Main {
                 }
 
                 String sql = "UPDATE DANGKYTRE SET MaPH=?, MaTre=?, MaLH=?, NgayDangKy=?, TrangThai=? WHERE MaDK=?";
-                PreparedStatement preparedStatement = conn.prepareStatement(sql);
-                preparedStatement.setInt(1, MaPH);
-                preparedStatement.setInt(2, MaTre);
-                preparedStatement.setInt(3, MaLH);
-                preparedStatement.setDate(4, Date.valueOf(NgayDangKyStr));
-                preparedStatement.setString(5, TrangThai);
-                preparedStatement.setInt(6, MaDK);
-                preparedStatement.executeUpdate();
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setInt(1, MaPH);
+                pst.setInt(2, MaTre);
+                pst.setInt(3, MaLH);
+                pst.setDate(4, Date.valueOf(NgayDangKyStr));
+                pst.setString(5, TrangThai);
+                pst.setInt(6, MaDK);
+                pst.executeUpdate();
 
                 System.out.println("Thông tin đăng ký đã sửa thành công");
             } catch (NumberFormatException e) {
@@ -239,10 +240,10 @@ public class Main {
                 }
 
                 String sql = "DELETE FROM DANGKYTRE WHERE MaDK=?";
-                PreparedStatement preparedStatement = conn.prepareStatement(sql);
-                preparedStatement.setInt(1, MaDK);
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setInt(1, MaDK);
 
-                int hangDuocXoa = preparedStatement.executeUpdate();
+                int hangDuocXoa = pst.executeUpdate();
 
                 if (hangDuocXoa > 0) {
                     System.out.println("Thông tin đăng ký đã được xóa thành công");
@@ -269,9 +270,9 @@ public class Main {
             System.out.println("+----------+----------+----------+----------+--------------+--------------+");
             String sql = "SELECT * FROM DANGKYTRE WHERE MaDK=?";
 
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, MaDK);
-            ResultSet rs = preparedStatement.executeQuery();
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, MaDK);
+            ResultSet rs = pst.executeQuery();
 
             if (rs.next()){
                 System.out.printf("| %-8s | %-8s | %-8s | %-8s | %-12s | %-12s |\n",

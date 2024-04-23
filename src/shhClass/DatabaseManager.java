@@ -11,7 +11,7 @@ public class DatabaseManager {
     private static Connection conn = null;
 
     // Method to establish connection
-    public static Connection getConnection() {
+    public static Connection getConnectDB() {
         try {
             if (conn == null || conn.isClosed()) {
                 Class.forName(JDBC_DRIVER);
@@ -26,7 +26,7 @@ public class DatabaseManager {
     }
 
     // Method to close connection
-    public static void closeConnection() {
+    public static void closeConnectDB() {
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
