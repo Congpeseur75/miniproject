@@ -18,10 +18,11 @@ public class Main {
             try {
                 System.out.println("\n==================MENU==================");
                 System.out.println("|       1.thêm thông tin đăng ký       |");
-                System.out.println("|       2.Sửa thông tin đăng ký        |");
-                System.out.println("|       3.Xóa thông tin đăng ký        |");
-                System.out.println("|       4.Tìm kiếm thông tin đăng ký   |");
-                System.out.println("|       5.Liệt kê thời gian học        |");
+                System.out.println("|       2.hiển thị toàn bộ thông tin   |");
+                System.out.println("|       3.Sửa thông tin đăng ký        |");
+                System.out.println("|       4.Xóa thông tin đăng ký        |");
+                System.out.println("|       5.Tìm kiếm thông tin đăng ký   |");
+                System.out.println("|       6.Liệt kê thời gian học        |");
                 System.out.println("========================================");
                 System.out.println("Chọn chức năng: ");
                 int choice = Integer.parseInt(sc.nextLine());
@@ -30,15 +31,18 @@ public class Main {
                         themThongTinDangKy();
                         break;
                     case 2:
-                        suaThongTinDangKyDatabase();
+                        hienThiToanBoThongTin();
                         break;
                     case 3:
-                        xoaThongTinDangKyDatabase();
+                        suaThongTinDangKyDatabase();
                         break;
                     case 4:
-                        timKiemThongTinDangKyDatabase();
+                        xoaThongTinDangKyDatabase();
                         break;
                     case 5:
+                        timKiemThongTinDangKyDatabase();
+                        break;
+                    case 6:
                         lietKeThoiGianHoc();
                         break;
                     case 0:
@@ -138,6 +142,62 @@ public class Main {
         } catch (SQLException e) {
             System.out.println("vui lòng nhập lại");
         }
+    }
+    public static void hienThiToanBoThongTin(){
+        System.out.println("\n==========Hiển thị toàn bộ thông tin============");
+        boolean isValidInput = false;
+        do {
+            try {
+                System.out.println("Nhập MaDK cần tìm: ");
+                int MaDK = Integer.parseInt(sc.nextLine());
+                if (!InputValidator.validateMa(MaDK)) {
+                    System.out.println("mã đăng ký không hợp lệ");
+                    continue;
+                }
+                if (!kiemTraMaDKTonTai(MaDK)) {
+                    System.out.println("Mã đăng ký không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
+                System.out.println("+----------+----------+------------------+---------------------+-------------------------+--------------------------+----------+------------------+----------------+----------+----------+--------------+-----------+-------------------+------------+--------------+--------------+");
+                System.out.println("|   MaDK   |   MaPH   |     HoTenPH      |        DiaChi       |          SoDT           |            Email         |  MaTre   |     HoTenTre     |     NgaySinh   | GioiTinh |  MaLH    |   PhongHoc   |   SoBuoi  |    NgayKhaiGiang  |   HocPhi   |  NgayDangKy  |   TrangThai  |");
+                System.out.println("+----------+----------+------------------+---------------------+-------------------------+--------------------------+----------+------------------+----------------+----------+----------+--------------+-----------+-------------------+------------+--------------+--------------+");
+
+
+                String sql = "SELECT DK.MaDK, PH.MaPH, PH.HoTenPH, PH.DiaChi, PH.SoDT, PH.Email, T.MaTre, T.HoTenTre, T.NgaySinh, T.GioiTinh, LH.MaLH, LH.PhongHoc, LH.SoBuoi, LH.NgayKhaiGiang, LH.HocPhi, DK.NgayDangKy, DK.TrangThai\n" +
+                        "FROM DANGKYTRE DK\n" +
+                        "JOIN PHUHUYNH PH ON DK.MaPH = PH.MaPH\n" +
+                        "JOIN TREEM T ON DK.MaTre = T.MaTre\n" +
+                        "JOIN LOPHOC LH ON DK.MaLH = LH.MaLH\n" +
+                        "WHERE DK.MaDK=?";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setInt(1, MaDK);
+                ResultSet rs = pst.executeQuery();
+                if (rs.next()){
+                    System.out.printf("| %-8s | %-8s | %-16s | %-19s | %-23s | %-23s | %-8s | %-16s | %-14s | %-8s | %-8s | %-12s | %-9s | %-17s | %-10s | %-12s | %-12s |\n",
+                        rs.getInt("MaDK"),
+                        rs.getInt("MaPH"),
+                        rs.getString("HoTenPH"),
+                        rs.getString("DiaChi"),
+                        rs.getString("SoDT"),
+                        rs.getString("Email"),
+                        rs.getInt("MaTre"),
+                        rs.getString("HoTenTre"),
+                        rs.getDate("NgaySinh"),
+                        rs.getString("GioiTinh"),
+                        rs.getInt("MaLH"),
+                        rs.getString("PhongHoc"),
+                        rs.getInt("SoBuoi"),
+                        rs.getDate("NgayKhaiGiang"),
+                        rs.getDouble("HocPhi"),
+                        rs.getDate("NgayDangKy"),
+                        rs.getString("TrangThai"));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            isValidInput = true;
+        }while (!isValidInput);
+        System.out.println("+----------+----------+------------------+---------------------+-------------------------+--------------------------+----------+------------------+----------------+----------+----------+--------------+-----------+-------------------+------------+--------------+--------------+");
     }
 
     public static void suaThongTinDangKyDatabase()  {
@@ -261,36 +321,46 @@ public class Main {
 
     public static void timKiemThongTinDangKyDatabase(){
         System.out.println("\n========================Tìm Kiếm thông tin đăng ký=========================");
-        try {
-            System.out.println("Nhập MaDK cần tìm: ");
-            int MaDK = Integer.parseInt(sc.nextLine());
+        boolean isValidInput = false;
+        do {
+            try {
+                System.out.println("Nhập MaDK cần tìm: ");
+                int MaDK = Integer.parseInt(sc.nextLine());
+                if (!InputValidator.validateMa(MaDK)) {
+                    System.out.println("mã đăng ký không hợp lệ");
+                    continue;
+                }
+                if (!kiemTraMaDKTonTai(MaDK)) {
+                    System.out.println("Mã đăng ký không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
 
-            System.out.println("+----------+----------+----------+----------+--------------+--------------+");
-            System.out.println("|   MaDK   |   MaPH   |   MaTre  |   MaLH   |  NgayDangKy  |   TrangThai  |");
-            System.out.println("+----------+----------+----------+----------+--------------+--------------+");
-            String sql = "SELECT * FROM DANGKYTRE WHERE MaDK=?";
+                System.out.println("+----------+----------+----------+----------+--------------+--------------+");
+                System.out.println("|   MaDK   |   MaPH   |   MaTre  |   MaLH   |  NgayDangKy  |   TrangThai  |");
+                System.out.println("+----------+----------+----------+----------+--------------+--------------+");
+                String sql = "SELECT * FROM DANGKYTRE WHERE MaDK=?";
 
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setInt(1, MaDK);
-            ResultSet rs = pst.executeQuery();
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setInt(1, MaDK);
+                ResultSet rs = pst.executeQuery();
 
-            if (rs.next()){
-                System.out.printf("| %-8s | %-8s | %-8s | %-8s | %-12s | %-12s |\n",
-                                    rs.getInt("MaDK"),
-                                    rs.getInt("MaPH"),
-                                    rs.getInt("MaTre"),
-                                    rs.getInt("MaLH"),
-                                    rs.getDate("NgayDangKy"),
-                                    rs.getString("TrangThai"));
+                if (rs.next()) {
+                    System.out.printf("| %-8s | %-8s | %-8s | %-8s | %-12s | %-12s |\n",
+                            rs.getInt("MaDK"),
+                            rs.getInt("MaPH"),
+                            rs.getInt("MaTre"),
+                            rs.getInt("MaLH"),
+                            rs.getDate("NgayDangKy"),
+                            rs.getString("TrangThai"));
+                } else {
+                    System.out.println("không tìm thấy thông tin đăng ký");
+                }
+                rs.close();
+            } catch (NumberFormatException | SQLException e) {
+                System.out.println("Lỗi" + e);
             }
-            else {
-                System.out.println("không tìm thấy thông tin đăng ký");
-            }
-            rs.close();
-        }
-        catch (NumberFormatException | SQLException e){
-            System.out.println("Lỗi" + e);
-        }
+            isValidInput = true;
+        }while (!isValidInput);
         System.out.println("+----------+----------+----------+----------+--------------+--------------+");
     }
 
