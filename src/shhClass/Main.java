@@ -103,8 +103,9 @@ public class Main {
                     continue;
                 }
 
-                System.out.println("nhập trạng thái đăng ký: ");
-                String trangThai = sc.nextLine();
+                System.out.println("Nhập trạng thái đăng ký (ấn Enter để bỏ qua và sử dụng trạng thái mặc định 'Chưa Duyệt'):");
+                String trangThaiInput = sc.nextLine();
+                String trangThai = trangThaiInput.isEmpty() ? "Chưa Duyệt" : trangThaiInput;
                 if (!InputValidator.validateTrangThai(trangThai)) {
                     System.out.println("Trạng thái đăng ký không hợp lệ.");
                     continue;
@@ -242,7 +243,6 @@ public class Main {
                 String sql = "DELETE FROM DANGKYTRE WHERE MaDK=?";
                 PreparedStatement pst = conn.prepareStatement(sql);
                 pst.setInt(1, MaDK);
-
                 int hangDuocXoa = pst.executeUpdate();
 
                 if (hangDuocXoa > 0) {
