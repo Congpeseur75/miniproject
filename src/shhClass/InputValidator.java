@@ -18,4 +18,5 @@ public class InputValidator {
     public static boolean validateTrangThai(String TrangThai){
         return TrangThai.equalsIgnoreCase("Đã duyệt") || TrangThai.equalsIgnoreCase("Chưa duyệt");
     }
+
 }

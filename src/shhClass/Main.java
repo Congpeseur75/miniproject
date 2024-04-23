@@ -120,6 +120,17 @@ public class Main {
             System.out.println("vui lòng nhập lại");
         }
     }
+    public static boolean kiemTraMaDKTonTai(int MaDK) throws SQLException {
+        String sql = "SELECT COUNT(*) AS count FROM DANGKYTRE WHERE MaDK = ?";
+        PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        preparedStatement.setInt(1, MaDK);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            int count = resultSet.getInt("count");
+            return count > 0;
+        }
+        return false;
+    }
     public static void suaThongTinDangKyDatabase()  {
         System.out.println("\n===========Sửa thông tin đăng ký==========");
         boolean isValidInput = false;
@@ -131,6 +142,11 @@ public class Main {
                     System.out.println("mã phụ huynh không hợp lệ");
                     continue;
                 }
+                if (!kiemTraMaDKTonTai(MaDK)) {
+                    System.out.println("Mã đăng ký không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
+
 
                 System.out.println("Nhập MaPH mới: ");
                 int MaPH = Integer.parseInt(sc.nextLine());
