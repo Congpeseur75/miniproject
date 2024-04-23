@@ -3,6 +3,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static shhClass.InputValidator.*;
+
 public class Main {
     static ArrayList<DangKyTre> dangKyTres = new ArrayList<>();
     static Scanner sc = new Scanner(System.in);
@@ -65,6 +67,11 @@ public class Main {
                     System.out.println("mã phụ huynh không hợp lệ");
                     continue;
                 }
+                if (!kiemTraMaPHTonTai(MaPH)) {
+                    System.out.println("Mã Phụ huynh không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
+
 
                 System.out.println("Nhập mã trẻ em: ");
                 int MaTre = Integer.parseInt(sc.nextLine());
@@ -72,11 +79,19 @@ public class Main {
                     System.out.println("mã phụ huynh không hợp lệ");
                     continue;
                 }
+                if (!kiemTraMaTreTonTai(MaTre)){
+                    System.out.println("Mã trẻ em không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
 
                 System.out.println("Nhập mã lớp: ");
                 int MaLH = Integer.parseInt(sc.nextLine());
                 if (!InputValidator.validateMa(MaLH)){
                     System.out.println("mã phụ huynh không hợp lệ");
+                    continue;
+                }
+                if (!kiemTraMaLHTonTai(MaLH)){
+                    System.out.println("Mã lớp học không tồn tại. Vui lòng nhập lại.");
                     continue;
                 }
 
@@ -101,6 +116,8 @@ public class Main {
                 isValidInput = true;
             } catch (NumberFormatException e) {
                 System.out.println("Lỗi: ");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         } while (!isValidInput);
     }
@@ -120,17 +137,7 @@ public class Main {
             System.out.println("vui lòng nhập lại");
         }
     }
-    public static boolean kiemTraMaDKTonTai(int MaDK) throws SQLException {
-        String sql = "SELECT COUNT(*) AS count FROM DANGKYTRE WHERE MaDK = ?";
-        PreparedStatement preparedStatement = conn.prepareStatement(sql);
-        preparedStatement.setInt(1, MaDK);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        if (resultSet.next()) {
-            int count = resultSet.getInt("count");
-            return count > 0;
-        }
-        return false;
-    }
+
     public static void suaThongTinDangKyDatabase()  {
         System.out.println("\n===========Sửa thông tin đăng ký==========");
         boolean isValidInput = false;
@@ -139,7 +146,7 @@ public class Main {
                 System.out.println("Nhập MaDK cần sửa: ");
                 int MaDK = Integer.parseInt(sc.nextLine());
                 if (!InputValidator.validateMa(MaDK)){
-                    System.out.println("mã phụ huynh không hợp lệ");
+                    System.out.println("mã đăng ký không hợp lệ");
                     continue;
                 }
                 if (!kiemTraMaDKTonTai(MaDK)) {
@@ -154,18 +161,31 @@ public class Main {
                     System.out.println("mã phụ huynh không hợp lệ");
                     continue;
                 }
+                if (!kiemTraMaPHTonTai(MaPH)) {
+                    System.out.println("Mã Phụ huynh không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
 
                 System.out.println("Nhập MaTre mới: ");
                 int MaTre = Integer.parseInt(sc.nextLine());
                 if (!InputValidator.validateMa(MaTre)){
-                    System.out.println("mã phụ huynh không hợp lệ");
+                    System.out.println("mã trẻ em không hợp lệ");
                     continue;
                 }
+                if (!kiemTraMaTreTonTai(MaTre)){
+                    System.out.println("Mã trẻ em không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
+
 
                 System.out.println("nhập MaLH mới: ");
                 int MaLH = Integer.parseInt(sc.nextLine());
                 if (!InputValidator.validateMa(MaLH)){
-                    System.out.println("mã phụ huynh không hợp lệ");
+                    System.out.println("mã lớp học không hợp lệ");
+                    continue;
+                }
+                if (!kiemTraMaLHTonTai(MaLH)){
+                    System.out.println("Mã lớp học không tồn tại. Vui lòng nhập lại.");
                     continue;
                 }
 
@@ -204,26 +224,38 @@ public class Main {
     }
     public static void xoaThongTinDangKyDatabase(){
         System.out.println("\n=========== Xóa thông tin đăng ký ==========");
-        try {
-            System.out.println("Nhập MaDK cần xóa: ");
-            int MaDK = Integer.parseInt(sc.nextLine());
+        boolean isValidInput = false;
+        do {
+            try {
+                System.out.println("Nhập MaDK cần xóa: ");
+                int MaDK = Integer.parseInt(sc.nextLine());
+                if (!InputValidator.validateMa(MaDK)) {
+                    System.out.println("mã đăng ký không hợp lệ");
+                    continue;
+                }
+                if (!kiemTraMaDKTonTai(MaDK)) {
+                    System.out.println("Mã đăng ký không tồn tại. Vui lòng nhập lại.");
+                    continue;
+                }
 
-            String sql = "DELETE FROM DANGKYTRE WHERE MaDK=?";
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setInt(1, MaDK);
+                String sql = "DELETE FROM DANGKYTRE WHERE MaDK=?";
+                PreparedStatement preparedStatement = conn.prepareStatement(sql);
+                preparedStatement.setInt(1, MaDK);
 
-            int hangDuocXoa = preparedStatement.executeUpdate();
+                int hangDuocXoa = preparedStatement.executeUpdate();
 
-            if (hangDuocXoa > 0) {
-                System.out.println("Thông tin đăng ký đã được xóa thành công");
-            } else {
-                System.out.println("Không tìm thấy MaDK tương ứng. Không có gì được xóa.");
+                if (hangDuocXoa > 0) {
+                    System.out.println("Thông tin đăng ký đã được xóa thành công");
+                } else {
+                    System.out.println("Không tìm thấy MaDK tương ứng. Không có gì được xóa.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Lỗi: ");
+            } catch (SQLException e) {
+                throw new RuntimeException("Lỗi SQL: ");
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Lỗi: ");
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi SQL: ");
-        }
+            isValidInput = true;
+        }while (!isValidInput);
     }
 
     public static void timKiemThongTinDangKyDatabase(){
